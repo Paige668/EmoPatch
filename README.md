@@ -149,8 +149,8 @@ We have implemented a Mandatory Safety Interruption Protocol across ALL internal
 We turned a technical constraint into a psychological feature.
 
 * **The Problem:** Deep reasoning with `gemini-3-pro` takes time (approx. 5-10 seconds).
-* **The Solution:** Instead of a generic loading spinner, we trigger a 20-second UI-guided breathing exercise (consisting of two 10-second cycles: 4s Inhale + 6s Exhale).
-* **The Impact:** This creates a natural "Buffer Zone." By the time the user completes two deep breath cycles to lower their physiological tension, the high-latency AI analysis is ready. We effectively masked the latency while providing direct therapeutic value.
+* **The Solution:** Instead of a generic loading spinner, we trigger a UI-guided breathing exercise (10 seconds for standard analysis, or 20 seconds for intense de-escalation).
+* **The Impact:** This creates a natural "Buffer Zone." By the time the user completes their mindful breathing cycle to lower physiological tension, the high-latency AI analysis is ready. We effectively masked the latency while providing direct grounding value.
 
 ### Vibe Engineering (Claymorphism)
 
