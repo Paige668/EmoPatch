@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmoPatch Architecture - Full View</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #F9FAFB; /* Very light cool grey */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #1F2937;
+            font-weight: 800;
+        }
+        
+        p {
+            margin: 5px 0 0 0;
+            color: #6B7280;
+            font-size: 0.9rem;
+        }
+
+        #graph-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mermaid Custom Styles for Interaction */
+        /* Smooth transition for all shapes */
+        g.node rect, g.node circle, g.node polygon, g.node path {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        /* Hover Effect: Scale up and Glow */
+        g.node:hover rect, g.node:hover circle, g.node:hover polygon, g.node:hover path {
+            fill: #FEF3C7 !important; /* Warm Yellow Highlight */
+            stroke: #D97706 !important; /* Darker Orange Border */
+            stroke-width: 4px !important;
+            filter: drop-shadow(0 10px 15px rgba(245, 158, 11, 0.3));
+            transform: scale(1.05);
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
+        /* Hover Effect: Text darken */
+        g.node:hover .nodeLabel {
+            font-weight: bold !important;
+            color: #000 !important;
+        }
+
+        /* Connection Lines */
+        .edgePath path {
+            stroke: #9CA3AF !important;
+            stroke-width: 2px !important;
+            transition: stroke 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>EmoPatch System Architecture</h1>
+        <p>Hover over modules to highlight data flow.</p>
+    </div>
+
+    <div id="graph-container" class="mermaid">
+        graph TD
+            %% Styling Classes
+            classDef input fill:#F3E8FF,stroke:#A855F7,stroke-width:2px,rx:10,ry:10;
+            classDef react fill:#E0F2FE,stroke:#0284C7,stroke-width:3px,rx:10,ry:10,color:#0c4a6e;
+            classDef geminiFlash fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,rx:10,ry:10;
+            classDef geminiPro fill:#CCFBF1,stroke:#0D9488,stroke-width:4px,rx:10,ry:10,stroke-dasharray: 5 5;
+            classDef geminiTTS fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,rx:10,ry:10;
+            classDef storage fill:#F3F4F6,stroke:#4B5563,stroke-width:2px,stroke-dasharray: 2 2;
+
+            %% Nodes
+            User((User)) 
+            React[<b>React App Client</b><br/>State Management & UI]:::react
+            History[(IndexedDB<br/>Local History)]:::storage
+
+            subgraph "Perception Layer (Fast)"
+                AudioBlob[Audio Blob<br/>Raw Data]:::input
+                G3Flash[<b>Gemini 3 Flash</b><br/>STT & Emotion Detection]:::geminiFlash
+            end
+
+            subgraph "Cognitive Layer (Deep Logic)"
+                Prompt[Structured Prompt<br/>CBT Context]:::input
+                G3Pro[<b>Gemini 3 Pro</b><br/>Reasoning & Reframing]:::geminiPro
+                Distortion[Pattern Check<br/>Safety Guardrails]:::geminiPro
+            end
+
+            subgraph "Response Layer (Empathetic)"
+                Advice[Final Advice Text]:::input
+                G2TTS[<b>Gemini 2.5 Flash TTS</b><br/>Voice Synthesis]:::geminiTTS
+            end
+
+            %% Flows
+            User ==>|1. Voice / Image / Text| React
+            
+            %% Perception Flow
+            React -->|2. useAudioRecorder| AudioBlob
+            AudioBlob -->|3. Multimodal Input| G3Flash
+            G3Flash -->|4. Transcribed Text + Tone| React
+
+            %% Cognitive Flow
+            React -->|5. Send Context| Prompt
+            Prompt --> G3Pro
+            G3Pro --> Distortion
+            Distortion -->|6. Fact/Interpret Split + Reframes| React
+
+            %% Response Flow
+            React -->|7. Send Advice| Advice
+            Advice --> G2TTS
+            G2TTS -->|8. Audio Buffer| React
+
+            %% Storage & Feedback
+            React -.->|9. Auto-Save| History
+            React ==>|10. Play Audio & Visuals| User
+
+            %% Links
+            linkStyle default stroke:#9CA3AF,stroke-width:2px,fill:none;
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                fontFamily: 'Segoe UI',
+                fontSize: '16px',
+                lineColor: '#9CA3AF'
+            },
+            flowchart: {
+                curve: 'basis', // Smooth curves
+                useMaxWidth: false, // Allow full size
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>
