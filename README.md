@@ -1,5 +1,5 @@
 
-# EmoPatch (Soft Triage)
+# EmoPatch
 
 > **"A Soft Patch for Hard Moments."**
 
@@ -79,7 +79,7 @@ graph TD
 ***Role:** Handles the core "Three Perspectives" generation and deep pattern analysis.
 ***Why:** Cognitive reframing requires high nuance and empathy. The Pro model excels at complex reasoning, ensuring the "Sociologist" and "Shield" personas sound profound and human-like.
 
-### 2. The "Fast Ears" (Perception & Triage)
+### 2. The "Fast Ears" (Perception & Reframing)
 
 ***Primary Model:** `gemini-3-flash-preview`
 ***Role:** Handles real-time voice transcription, multimodal input (images), and initial intent detection.
