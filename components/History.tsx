@@ -5,6 +5,7 @@ import { TriageRecord, Language } from '../types';
 import { PERSONA_LABELS, UI_TEXT } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClayButton } from './ui/ClayButton';
+import { Icon } from './ui/Icon';
 
 interface HistoryProps {
   onBack: () => void;
@@ -42,23 +43,25 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
     <div className="min-h-screen bg-[#FFF8F3] p-6 font-sans">
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-10">
-          <button 
-            onClick={onBack} 
-            className="w-12 h-12 rounded-full bg-white shadow-[4px_4px_8px_#E6D8D1,-4px_-4px_8px_#FFFFFF] flex items-center justify-center text-slate-400 hover:text-[#88C9A1] active:shadow-inner transition-all"
+          <button
+            type="button"
+            aria-label={t.history_back}
+            onClick={onBack}
+            className="w-12 h-12 rounded-full bg-white shadow-[4px_4px_8px_#E6D8D1,-4px_-4px_8px_#FFFFFF] flex items-center justify-center text-slate-500 hover:text-[#88C9A1] active:shadow-inner transition-all"
           >
-            <span className="font-bold text-lg">←</span>
+            <Icon name="back" className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-black text-slate-800 ml-5">{t.history_title}</h1>
+          <h1 className="font-display text-[26px] text-[#4A4A4A] ml-5">{t.history_title}</h1>
         </div>
 
         {loading ? (
-          <div className="text-center text-slate-400 mt-20 animate-pulse font-bold">{t.history_loading}</div>
+          <div className="text-center text-slate-500 mt-20 animate-pulse font-bold">{t.history_loading}</div>
         ) : allRecords.length === 0 ? (
           <div className="text-center mt-20">
              <div className="w-24 h-24 bg-white rounded-full mx-auto mb-6 flex items-center justify-center text-4xl shadow-[8px_8px_16px_#E6D8D1,-8px_-8px_16px_#FFFFFF]">
                  🍃
              </div>
-             <p className="text-slate-400 font-medium whitespace-pre-line leading-relaxed">{t.history_empty}</p>
+             <p className="text-slate-500 font-medium whitespace-pre-line leading-relaxed">{t.history_empty}</p>
           </div>
         ) : (
           <div className="space-y-6 pb-20">
@@ -89,7 +92,7 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                 >
                   {/* Top Row: Date & Mood */}
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs text-slate-400 font-bold bg-[#F0F4F8] px-3 py-1 rounded-full">
+                    <span className="text-xs text-slate-500 font-bold bg-[#F0F4F8] px-3 py-1 rounded-full">
                       {new Date(rec.createdAt).toLocaleDateString()}
                     </span>
                     <div className="flex items-center gap-2">
@@ -113,11 +116,11 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                   {!isExpanded && (
                      <div className="space-y-3">
                         <div className="bg-[#F8F5F2] p-4 rounded-2xl shadow-inner">
-                            <p className="text-xs text-slate-400 font-bold uppercase mb-1">{t.history_thought}</p>
+                            <p className="text-xs text-slate-500 font-bold uppercase mb-1">{t.history_thought}</p>
                             <p className="text-sm text-slate-600 italic line-clamp-2">"{rec.split.interpretation}"</p>
                         </div>
                         <div className="flex gap-3 items-center text-sm text-slate-500 pl-2">
-                           <span className="bg-[#EEF2FF] w-8 h-8 rounded-full flex items-center justify-center shadow-sm">{persona.emoji}</span>
+                           <span className="bg-[#EFE8F7] text-[#6A5283] w-8 h-8 rounded-full flex items-center justify-center shadow-sm">{persona.icon ? <Icon name={persona.icon} className="w-4 h-4" /> : persona.emoji}</span>
                            <span className="truncate flex-1 font-bold">{rec.chosenReframe.text}</span>
                         </div>
                      </div>
@@ -139,8 +142,8 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                                     <div className="bg-[#F0F4F8] p-5 rounded-2xl border border-white shadow-sm">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="w-2 h-2 rounded-full bg-[#88D4AB]"></div>
-                                            <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                                                {language === 'zh' ? '事实 (Fact)' : 'Fact'}
+                                            <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
+                                                {t.history_fact}
                                             </span>
                                         </div>
                                         <p className="text-sm text-slate-700 leading-relaxed font-medium">{rec.split.fact}</p>
@@ -148,8 +151,8 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                                     <div className="bg-[#FFF4F4] p-5 rounded-2xl border border-white shadow-sm">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="w-2 h-2 rounded-full bg-[#88C9A1]"></div>
-                                            <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                                                {language === 'zh' ? '感受 (Feel)' : 'Feel'}
+                                            <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
+                                                {t.history_story}
                                             </span>
                                         </div>
                                         <p className="text-sm text-slate-700 leading-relaxed italic">"{rec.split.interpretation}"</p>
@@ -159,8 +162,8 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                                 {/* 1.5 Selected Needs (Tags) */}
                                 {rec.selectedNeeds && rec.selectedNeeds.length > 0 && (
                                     <div>
-                                       <span className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 block">
-                                           {language === 'zh' ? '当时渴望 (Needs)' : 'Needs'}
+                                       <span className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">
+                                           {t.history_needs}
                                        </span>
                                        <div className="flex flex-wrap gap-2">
                                            {rec.selectedNeeds.map((need, idx) => (
@@ -172,11 +175,44 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                                     </div>
                                 )}
 
+                                {/* 1.6 Unknowns and later context */}
+                                {rec.unknowns && rec.unknowns.length > 0 && (
+                                    <div>
+                                       <span className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">
+                                           {t.history_unknowns}
+                                       </span>
+                                       <ul className="space-y-1">
+                                           {rec.unknowns.map((unknown, idx) => (
+                                               <li key={idx} className="text-sm text-slate-600 flex gap-2">
+                                                   <span className="text-[#8F72B3]" aria-hidden="true">?</span>
+                                                   <span>{unknown}</span>
+                                               </li>
+                                           ))}
+                                       </ul>
+                                    </div>
+                                )}
+
+                                {rec.contextPatches && rec.contextPatches.length > 0 && (
+                                    <div className="rounded-2xl border-2 border-dashed border-[#B79FD4]/40 bg-[#F4EFF8] p-4">
+                                       <span className="text-xs font-black text-[#6A5283] uppercase tracking-wider mb-2 block">
+                                           <Icon name="puzzle" className="inline w-4 h-4 mr-1 -mt-0.5" />{t.history_patches}
+                                       </span>
+                                       <div className="space-y-3">
+                                           {rec.contextPatches.map((patch, idx) => (
+                                               <div key={idx}>
+                                                   <p className="text-sm text-slate-700">“{patch.addedContext}”</p>
+                                                   {patch.why && <p className="text-xs text-slate-500 mt-1">{patch.why}</p>}
+                                               </div>
+                                           ))}
+                                       </div>
+                                    </div>
+                                )}
+
                                 {/* 2. Selected Perspective */}
                                 <div>
                                      <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-[#F0F4F8] flex items-center justify-center text-xl shadow-inner">
-                                            {persona.emoji}
+                                        <div className="w-10 h-10 rounded-xl bg-[#EFE8F7] text-[#6A5283] flex items-center justify-center text-xl shadow-inner">
+                                            {persona.icon ? <Icon name={persona.icon} className="w-5 h-5" /> : persona.emoji}
                                         </div>
                                         <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
                                             {persona.title}
@@ -191,7 +227,7 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
                                 <div className="bg-[#F0FDF4] p-6 rounded-3xl relative overflow-hidden border-2 border-[#DCFCE7]">
                                      <div className="absolute top-0 right-0 p-4 opacity-20 text-5xl">🌱</div>
                                      <span className="text-xs font-black text-[#88D4AB] uppercase tracking-wider block mb-3">
-                                         {language === 'zh' ? '行动锦囊' : 'Action Step'}
+                                         {t.history_action}
                                      </span>
                                      <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-bold">
                                         {rec.chosenAction.text}
@@ -209,7 +245,7 @@ const History: React.FC<HistoryProps> = ({ onBack, language }) => {
             {hasMore && (
                 <div className="flex justify-center pt-4">
                     <ClayButton onClick={handleLoadMore} variant="secondary" className="!px-8 !py-2 !text-sm">
-                        {language === 'zh' ? '加载更多' : 'Load More'} ({allRecords.length - visibleCount})
+                        {t.history_load_more} ({allRecords.length - visibleCount})
                     </ClayButton>
                 </div>
             )}

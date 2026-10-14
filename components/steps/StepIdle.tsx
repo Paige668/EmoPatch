@@ -1,15 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Icon } from '../ui/Icon';
+import type { UIText } from '../../constants';
 
 interface StepIdleProps {
-  t: any;
+  t: UIText;
   actions: {
     startFlow: () => void;
+    startDemo: () => void;
   };
 }
 
 // Custom Clay Puzzle Cluster Component
-const ClayPuzzlePatch = ({ onClick }: { onClick: () => void }) => {
+const ClayPuzzlePatch = ({ onClick, ariaLabel }: { onClick: () => void; ariaLabel: string }) => {
   return (
     <motion.div
       onClick={onClick}
@@ -26,7 +29,14 @@ const ClayPuzzlePatch = ({ onClick }: { onClick: () => void }) => {
       // Increased size from w-64 to w-80 for visual impact
       className="relative w-80 h-80 cursor-pointer flex items-center justify-center z-10"
       role="button"
-      aria-label="Start Emotional Patch"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
     >
       <svg
         // Adjusted viewBox to zoom in on the pieces (tightened from 0 0 220 220)
@@ -124,6 +134,28 @@ const ClayPuzzlePatch = ({ onClick }: { onClick: () => void }) => {
                     strokeDasharray="5,5"
                     strokeOpacity="0.9"
                 />
+                {/* Patchy's face: the patch in the logo is the mascot itself. */}
+                <g className="patchy-blink" style={{ transformOrigin: '90px 129px' }}>
+                    <ellipse cx="78" cy="129" rx="3.6" ry="4.8" fill="#4A3F55" />
+                    <ellipse cx="102" cy="129" rx="3.6" ry="4.8" fill="#4A3F55" />
+                    <circle cx="79.2" cy="127" r="1.2" fill="#FFFFFF" />
+                    <circle cx="103.2" cy="127" r="1.2" fill="#FFFFFF" />
+                </g>
+                <circle cx="69" cy="139" r="4.6" fill="#F3A5A0" opacity="0.6" />
+                <circle cx="111" cy="139" r="4.6" fill="#F3A5A0" opacity="0.6" />
+                <motion.path
+                    variants={{
+                        initial: { d: 'M84 138 Q90 143 96 138' },
+                        animate: { d: 'M84 138 Q90 143 96 138' },
+                        hover: { d: 'M84 136 Q90 148 96 136' },
+                        tap: { d: 'M84 136 Q90 148 96 136' },
+                    }}
+                    d="M84 138 Q90 143 96 138"
+                    fill="none"
+                    stroke="#4A3F55"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                />
             </motion.g>
         </g>
       </svg>
@@ -141,18 +173,28 @@ export const StepIdle: React.FC<StepIdleProps> = ({ t, actions }) => {
     <div className="flex flex-col items-center">
       {/* Branding Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-black mb-1 tracking-tight drop-shadow-sm">
+        <h1 className="font-display text-5xl md:text-6xl mb-1 drop-shadow-sm">
             <span className="text-[#8AB89F]">Emo</span><span className="text-[#B79FD4]">Patch</span>
         </h1>
-        <p className="text-[#8C8C8C] font-bold text-sm md:text-base tracking-wide uppercase opacity-70">
+        <p className="text-[#5D5D5D] font-bold text-sm md:text-base leading-relaxed max-w-sm mx-auto">
             {t.app_slogan}
         </p>
       </div>
 
       {/* Trigger Button - New Clay Puzzle Patch Cluster */}
       {/* Added z-10 relative to ensure it sits 'above' if needed, but the text will overlap from bottom */}
-      <div className="z-10 pl-2">
-        <ClayPuzzlePatch onClick={actions.startFlow} />
+      <div className="z-10 pl-2 relative">
+        <ClayPuzzlePatch onClick={actions.startFlow} ariaLabel={t.puzzle_aria} />
+        {/* Patchy says hello from inside the logo. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
+          animate={{ opacity: 1, scale: 1, rotate: -3 }}
+          transition={{ delay: 0.8, type: 'spring', stiffness: 320, damping: 14 }}
+          className="pointer-events-none absolute right-0 bottom-[30%] z-20 origin-bottom-left rounded-[1.1rem] bg-white px-3.5 py-2 font-display text-[15px] text-[#6A5283] shadow-[4px_4px_10px_rgba(150,140,120,0.3)]"
+        >
+          <span aria-hidden="true" className="absolute -left-1.5 bottom-3 h-3.5 w-3.5 rotate-45 rounded-[3px] bg-white" />
+          <span className="relative">{t.home_patchy_hi}</span>
+        </motion.div>
       </div>
       
       {/* Action Text - Redesigned for Warmth & Liveliness */}
@@ -164,7 +206,7 @@ export const StepIdle: React.FC<StepIdleProps> = ({ t, actions }) => {
             initial={{ opacity: 0, y: 10, rotate: 0 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl md:text-4xl font-extrabold text-[#655C70] tracking-tight drop-shadow-sm mb-3 bg-white/40 backdrop-blur-md px-6 py-2 rounded-3xl pointer-events-auto"
+            className="font-display text-2xl md:text-3xl text-center text-[#655C70] drop-shadow-sm mb-3 bg-white/40 backdrop-blur-md px-6 py-2 rounded-3xl pointer-events-auto"
           >
             {t.home_title}
           </motion.h2>
@@ -179,9 +221,20 @@ export const StepIdle: React.FC<StepIdleProps> = ({ t, actions }) => {
              onClick={actions.startFlow}
              className="pointer-events-auto group flex items-center justify-center bg-[#FFFBF0] border border-[#EFEBE6] px-10 py-3 rounded-full shadow-[8px_8px_16px_#E6D8D1,-8px_-8px_16px_#FFFFFF] cursor-pointer mt-1"
           >
-             <span className="text-[#8C8C8C] font-bold text-sm tracking-wide uppercase group-hover:text-[#E08D79] transition-colors">
+             <span className="font-display text-[#6B6B6B] text-base tracking-wide group-hover:text-[#C0654F] transition-colors">
                  {t.home_subtitle}
              </span>
+          </motion.button>
+
+          {/* Sample moment: a fully cached walkthrough of the adaptive loop */}
+          <motion.button
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ delay: 0.55 }}
+             onClick={actions.startDemo}
+             className="pointer-events-auto mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#7B6194] underline decoration-dashed underline-offset-4 hover:text-[#5D4778] transition-colors"
+          >
+             <Icon name="puzzle" className="w-4 h-4" />{t.demo_button}
           </motion.button>
 
       </div>
