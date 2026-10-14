@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EmoPatch (情绪舒缓贴)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Noto+Sans+SC:wght@500;700;900&display=swap"
-    rel="stylesheet">
+  <meta name="description" content="EmoPatch separates what happened from the story your mind added, offers three grounded perspectives, and revises its analysis when new context arrives." />
   <style>
     body {
-      font-family: 'Nunito', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      font-family: 'Nunito', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
       background-color: #F2EFE9;
       /* Warmer, slightly darker cream/linen to reduce glare */
       color: #5D5D5D;
@@ -69,21 +66,16 @@
       background: #E8EDF2;
       box-shadow: inset 5px 5px 10px #D1D9E6, inset -5px -5px 10px #FFFFFF;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@18.3.1/",
-    "react": "https://esm.sh/react@18.3.1",
-    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
-    "react-dom": "https://esm.sh/react-dom@18.3.1",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
-    "framer-motion": "https://esm.sh/framer-motion@11.15.0?external=react,react-dom",
-    "idb-keyval": "https://esm.sh/idb-keyval@6.2.1"
-  }
-}
-</script>
-  <link rel="stylesheet" href="/index.css">
 </head>
 
 <body>

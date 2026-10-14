@@ -1,6 +1,6 @@
 {
   "name": "EmoPatch",
-  "description": "A bite-sized tool for high-sensitivity users to de-escalate emotional triggers using CBT-based triad analysis and AI assistance.",
+  "description": "A reflection tool that separates facts from interpretations, surfaces unknowns, and updates its perspective when new context arrives.",
   "requestFramePermissions": [
     "microphone"
   ]

@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Rounded display text: ZCOOL KuaiLe ships one weight, so never fake-bold it. */
+  .font-display {
+    font-family: 'Fredoka', 'ZCOOL KuaiLe', 'PingFang SC', system-ui, sans-serif;
+    font-weight: 600;
+    font-synthesis: none;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- Puzzle pieces ----------
+     A .piece-stack holds pieces that interlock: the knob on the bottom of one
+     piece drops into the socket cut from the top of the next. The stack carries
+     the drop shadow so it follows the cut-out shapes. */
+  .piece-stack {
+    display: grid;
+    gap: 7px;
+    filter: drop-shadow(8px 10px 12px rgba(150, 140, 120, 0.28)) drop-shadow(-6px -6px 9px rgba(255, 255, 255, 0.95));
+  }
+  .piece {
+    --piece-from: #E2EEDD;
+    --piece-to: #C9E0CB;
+    --piece-ink: #3F6B52;
+    position: relative;
+    border-radius: 1.9rem;
+    padding: 1.25rem 1.4rem 1.5rem;
+    background: linear-gradient(180deg, var(--piece-from), var(--piece-to));
+    box-shadow: inset 5px 5px 12px rgba(255, 255, 255, 0.75), inset -4px -6px 12px rgba(80, 60, 20, 0.05);
+  }
+  /* The stitched border from the fabric patch in the logo. */
+  .piece::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border: 2px dashed rgba(255, 255, 255, 0.85);
+    border-radius: 1.5rem;
+    pointer-events: none;
+  }
+  .piece-yellow { --piece-from: #FFF6D8; --piece-to: #FBE3A1; --piece-ink: #85651A; }
+  .piece-purple { --piece-from: #EFE8F7; --piece-to: #D4C4E8; --piece-ink: #6A5283; }
+  /* A notebook page: warm paper inside the stitched patch. */
+  .piece-journal { --piece-from: #FFFDF7; --piece-to: #FFF4DC; --piece-ink: #85651A; padding: 1.5rem 1.5rem 1.6rem; }
+  /* Ruled lines that scroll with the text, one per line of writing. */
+  .journal-lines {
+    line-height: 34px;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 33px, rgba(183, 159, 212, 0.28) 33px 34px);
+    background-attachment: local;
+    background-position: 0 8px;
+  }
+  .piece-knob::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -28px;
+    width: 42px;
+    height: 42px;
+    margin-left: -21px;
+    border-radius: 50%;
+    background: var(--piece-to);
+  }
+  .piece-socket {
+    -webkit-mask: radial-gradient(circle 25px at 50% 0, #0000 96%, #000 100%);
+    mask: radial-gradient(circle 25px at 50% 0, #0000 96%, #000 100%);
+    padding-top: 1.9rem;
+  }
+  .piece-clickable {
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .piece-clickable:hover { transform: translateY(-2px); }
+  .piece-clickable:focus-visible { outline: 3px solid #B79FD4; outline-offset: 3px; }
+
+  /* Pieces swing in from alternating sides and lock into place. */
+  .snap-in > .piece:nth-child(odd) { animation: piece-from-left 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .snap-in > .piece:nth-child(even) { animation: piece-from-right 0.75s 0.14s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .snap-in > .piece:nth-child(3) { animation-delay: 0.28s; }
+
+  /* A piece that is still missing: dashed, and it wiggles now and then. */
+  .missing-piece { animation: wiggle 3.6s ease-in-out infinite; }
+  .missing-piece:nth-child(2) { animation-delay: 0.5s; }
+  .missing-piece:nth-child(3) { animation-delay: 1s; }
+
+  /* Clay squish: pressed flat, then springs back. */
+  .squish { transition: transform 0.5s cubic-bezier(0.34, 1.9, 0.64, 1), box-shadow 0.3s ease, background-color 0.3s ease; }
+  .squish:active { transform: scale(0.9); transition-duration: 0.08s; }
+
+  .pop { animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* ---------- Patchy ---------- */
+  .patchy svg { width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(5px 7px 8px rgba(122, 96, 160, 0.28)) drop-shadow(-4px -4px 6px rgba(255, 255, 255, 0.9)); }
+  .patchy-body { transform-origin: 62px 112px; animation: patchy-breathe 3.2s ease-in-out infinite; }
+  .patchy-blink { transform-origin: 61px 70px; animation: patchy-blink 4.2s infinite; }
+  .patchy-dot { animation: patchy-dot 1.2s ease-in-out infinite; }
+  .patchy-dot:nth-of-type(2) { animation-delay: 0.2s; }
+  .patchy-dot:nth-of-type(3) { animation-delay: 0.4s; }
+  .patchy-spark { transform-box: fill-box; transform-origin: center; animation: patchy-twinkle 1.4s ease-in-out infinite; }
+  .patchy-heart { transform-box: fill-box; transform-origin: center; animation: patchy-float 2.4s ease-in-out infinite; }
+  .patchy-confetti { transform-box: fill-box; animation: patchy-confetti 1.8s linear infinite; }
+  .patchy-confetti:nth-of-type(2) { animation-delay: 0.5s; }
+  .patchy-confetti:nth-of-type(3) { animation-delay: 1s; }
+  .patchy-confetti:nth-of-type(4) { animation-delay: 1.3s; }
+  .patchy-cheer .patchy-body { animation: patchy-hop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
+  .patchy-hug .patchy-body { animation: patchy-squeeze 2.4s ease-in-out infinite; }
+  .patchy-sway .patchy-body { animation: patchy-sway 2s ease-in-out infinite; }
+  /* Inhale 4s, hold 2s, exhale 6s: Patchy is the breathing guide. */
+  .patchy-breathing .patchy-body { transform-origin: 62px 72px; animation: patchy-guide 12s ease-in-out infinite; }
+
+  .loader-piece { animation: loader-hop 1.1s ease-in-out infinite; }
+  .loader-piece:nth-child(2) { animation-delay: 0.15s; }
+  .loader-piece:nth-child(3) { animation-delay: 0.3s; }
+
+  .sheet-up { animation: sheet-up 0.55s cubic-bezier(0.34, 1.25, 0.64, 1); }
+  .peek-up { animation: peek-up 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .note-fly { animation: note-fly 2.8s linear infinite; }
+}
+
+@keyframes piece-from-left { 0% { transform: translate(-46px, -16px) rotate(-5deg); } 100% { transform: none; } }
+@keyframes piece-from-right { 0% { transform: translate(46px, -10px) rotate(5deg); } 100% { transform: none; } }
+@keyframes wiggle { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(-2.5deg); } 95% { transform: rotate(2.5deg); } }
+@keyframes pop { 0% { transform: scale(0.8); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes patchy-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 0.975); } }
+@keyframes patchy-blink { 0%, 91%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.12); } }
+@keyframes patchy-dot { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes patchy-twinkle { 0%, 100% { transform: scale(0.7) rotate(0deg); } 50% { transform: scale(1.15) rotate(20deg); } }
+@keyframes patchy-float { 0% { transform: translateY(4px); opacity: 0.4; } 50% { opacity: 1; } 100% { transform: translateY(-6px); opacity: 0.4; } }
+@keyframes patchy-hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 30% { transform: translateY(0) scale(1.06, 0.92); } 55% { transform: translateY(-10px) scale(0.96, 1.05); } }
+@keyframes patchy-confetti { 0% { transform: translateY(-8px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(26px) rotate(200deg); opacity: 0; } }
+@keyframes patchy-squeeze { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.05, 0.94); } 62% { transform: scale(0.98, 1.02); } }
+@keyframes patchy-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes patchy-guide { 0% { transform: scale(0.86); } 33% { transform: scale(1.14); } 50% { transform: scale(1.14); } 100% { transform: scale(0.86); } }
+@keyframes loader-hop { 0%, 100% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-16px) rotate(-8deg); } 60% { transform: translateY(-16px) rotate(8deg); } }
+@keyframes sheet-up { 0% { transform: translateY(110%); } 100% { transform: none; } }
+@keyframes peek-up { 0% { transform: translateY(120%) rotate(-8deg); } 100% { transform: none; } }
+@keyframes note-fly { 0% { transform: translateY(0) rotate(-12deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-80px) rotate(12deg); opacity: 0; } }
