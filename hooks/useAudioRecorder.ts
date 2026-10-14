@@ -1,14 +1,32 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface UseAudioRecorderProps {
   onStop: (audioBlob: Blob) => void;
   onError?: (error: Error) => void;
+  maxDurationMs?: number;
 }
 
-export const useAudioRecorder = ({ onStop, onError }: UseAudioRecorderProps) => {
+// Keeps uploads well under the serverless request limit.
+const DEFAULT_MAX_DURATION_MS = 2 * 60 * 1000;
+
+export const useAudioRecorder = ({ onStop, onError, maxDurationMs = DEFAULT_MAX_DURATION_MS }: UseAudioRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const autoStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearAutoStop = () => {
+    if (autoStopRef.current) clearTimeout(autoStopRef.current);
+    autoStopRef.current = null;
+  };
+
+  const stopRecording = useCallback(() => {
+    clearAutoStop();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  }, []);
 
   const startRecording = useCallback(async () => {
     try {
@@ -24,7 +42,10 @@ export const useAudioRecorder = ({ onStop, onError }: UseAudioRecorderProps) => 
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        // Safari records audio/mp4, Chrome and Firefox record webm/ogg.
+        // Keep the recorder's real container type so transcription can decode it.
+        const mimeType = mediaRecorder.mimeType || audioChunksRef.current[0]?.type || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         // Stop all tracks to release the microphone
         stream.getTracks().forEach(track => track.stop());
         onStop(audioBlob);
@@ -32,18 +53,12 @@ export const useAudioRecorder = ({ onStop, onError }: UseAudioRecorderProps) => 
 
       mediaRecorder.start();
       setIsRecording(true);
+      autoStopRef.current = setTimeout(stopRecording, maxDurationMs);
     } catch (err: any) {
       console.error("Mic error:", err);
       if (onError) onError(err);
     }
-  }, [onStop, onError]);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  }, []);
+  }, [onStop, onError, maxDurationMs, stopRecording]);
 
   const toggleRecording = useCallback(() => {
     if (isRecording) {
@@ -52,6 +67,8 @@ export const useAudioRecorder = ({ onStop, onError }: UseAudioRecorderProps) => 
       startRecording();
     }
   }, [isRecording, startRecording, stopRecording]);
+
+  useEffect(() => clearAutoStop, []);
 
   return {
     isRecording,

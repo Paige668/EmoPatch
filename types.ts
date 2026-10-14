@@ -1,15 +1,3 @@
-
-export enum FlowStep {
-  HOME = 'HOME',
-  BUFFER = 'BUFFER',
-  CAPTURE = 'CAPTURE',
-  SPLIT_REVIEW = 'SPLIT_REVIEW', // New step: Review AI split
-  REFRAME_SELECTION = 'REFRAME_SELECTION', // New step: Choose perspective
-  ACTION = 'ACTION',
-  CLOSE = 'CLOSE',
-  HISTORY = 'HISTORY',
-}
-
 export type Language = 'zh' | 'en';
 
 export enum ContextTag {
@@ -19,11 +7,13 @@ export enum ContextTag {
   SELF = 'self',
 }
 
-// The three "Friend" personas
+// Three evidence-informed reflection lenses.
+// The legacy persona values are still supported in constants.ts when old local
+// records are rendered, but new sessions use these clearer operations.
 export enum ReframeType {
-  CAMERA = 'CAMERA',      // Objective, dull
-  SOCIOLOGIST = 'SOCIOLOGIST', // Probabilistic, system view (Renamed from SCIENTIST)
-  SHIELD = 'SHIELD',      // Protective boundary
+  OBSERVER = 'OBSERVER',
+  POSSIBILITIES = 'POSSIBILITIES',
+  AGENCY = 'AGENCY',
 }
 
 export enum ActionType {
@@ -31,6 +21,16 @@ export enum ActionType {
   WRITING = 'WRITING',    // Cognitive/Foundation
   BOUNDARY = 'BOUNDARY',  // Social/Blocking
 }
+
+export type ThinkingPattern =
+  | 'SELF_ATTACK'
+  | 'CATASTROPHIZING'
+  | 'MIND_READING'
+  | 'SHOULD_STATEMENTS'
+  | 'ALL_OR_NOTHING'
+  | 'EMOTIONAL_REASONING';
+
+export type FollowUpRequestType = 'EXPLAIN' | 'ACTION';
 
 export interface SplitResult {
   fact: string;
@@ -53,27 +53,43 @@ export interface CaptureData {
   moodBefore: number;
 }
 
-// New Structured Follow-up Content
+// Structured follow-up content
 export interface FollowUpContent {
   headline: string;    // Short essence (e.g., "Cognitive Overload")
-  encouragement: string; // New: Dynamic short comforting phrase (e.g., "You are safe")
+  encouragement: string; // Dynamic, non-clinical acknowledgment
   mainInsight: string; // The deep dive paragraph
   keyPoints: string[]; // 3 bullet points
   advice: string;      // Closing warm sentence
 }
 
-// Main Draft Object
-export interface Draft {
-  id: string;
-  createdAt: number;
-  step: FlowStep;
-  capture: CaptureData;
-  split: SplitResult; // AI Result 1
-  reframes: ReframeOption[]; // AI Result 2
-  selectedReframe: ReframeOption | null;
-  actions: ActionOption[];
-  selectedAction: ActionOption | null;
-  moodAfter: number;
+export interface PerspectiveSet {
+  observer: string;
+  possibilities: string;
+  agency: string;
+}
+
+export interface ContextPatchResponse {
+  updatedFact: string;
+  updatedInterpretation: string;
+  unknowns: string[];
+  reframes: PerspectiveSet;
+  changeSummary: {
+    changed: string[];
+    stayed: string[];
+    why: string;
+  };
+}
+
+// One snapshot of the analysis. A new version is appended every time a
+// Context Patch succeeds, so the UI can show a before/after comparison.
+export interface AnalysisVersion {
+  createdAt: string;
+  addedContext?: string;
+  fact: string;
+  interpretation: string;
+  unknowns: string[];
+  reframes: PerspectiveSet;
+  changeSummary?: ContextPatchResponse['changeSummary'];
 }
 
 // Final Record for History
@@ -82,7 +98,11 @@ export interface TriageRecord {
   createdAt: string;
   capture: CaptureData;
   split: SplitResult;
-  selectedNeeds?: string[]; // New: Store the tags selected during triage
+  selectedNeeds?: string[];
+  unknowns?: string[];
+  clarifyingQuestion?: string | null;
+  clarifyingAnswer?: string;
+  contextPatches?: { addedContext: string; why: string }[];
   chosenReframe: ReframeOption;
   chosenAction: ActionOption;
   moodDelta: number;
@@ -92,16 +112,10 @@ export interface TriageRecord {
 export interface AISplitResponse {
   fact: string;
   interpretation: string;
-  distortion?: 'SELF_ATTACK' | 'CATASTROPHIZING' | 'MIND_READING' | 'SHOULD_STATEMENTS' | 'ALL_OR_NOTHING' | 'EMOTIONAL_REASONING' | null; // AI-detected distortion
+  distortion?: ThinkingPattern | null;
+  unknowns: string[];
+  clarifyingQuestion: string | null;
+  clarifyingWhy: string | null;
 }
 
-export interface AIReframeResponse {
-  camera: string;
-  sociologist: string;
-  shield: string;
-  suggestedActions: {
-    sensory: string;
-    writing: string;
-    boundary: string;
-  }
-}
+export type AIReframeResponse = PerspectiveSet;
