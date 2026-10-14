@@ -1,55 +1,76 @@
-# Case Study: Decoding the "Dry Text" with Native Multimodal AI
+# Case Study: The “OK.” Screenshot
 
-## The Problem: The Hidden Language of Punctuation
+## The trigger
 
-In modern communication, silence and punctuation are as much "data" as words. A "dry text"—a short, punctuated reply like "OK." or "Cool."—is a common trigger for individuals with high rejection sensitivity.
+A user uploads a chat screenshot containing a short reply—`OK.`—after a long gap. The user writes: “They are angry with me.”
 
-Traditional AI processes this as: `Text: "OK." -> Status: Positive/Neutral`.
-**But humans process it as: `Short reply + Period + Time Delay = They are mad at me.`**
+The screenshot contains real evidence, but it also invites uncertain social interpretation. Message length, punctuation, timestamps, and read receipts can be observed. Another person's emotion or intent cannot.
 
-## The EmoPatch Solution: Gemini 3 Native Vision
+## First-pass analysis
 
-EmoPatch doesn't just read the text; it **sees** the interaction. By using Gemini 3's native multimodal capabilities, we bypass traditional OCR and analyze the raw visual layout.
+### Observable evidence
 
-### Technical Comparison
+> A message containing “OK.” is visible. The screenshot shows the displayed timestamp and the preceding messages available in the image.
 
-| Feature | Traditional OCR + Text AI | EmoPatch (Gemini 3 Native) |
-| :--- | :--- | :--- |
-| **Logic** | Text extraction first, then sentiment. | Direct visual-semantic understanding. |
-| **Punctuation** | Often ignored or treated as noise. | Analyzed as a visual social cue (e.g., the "Aggressive Period"). |
-| **Message Density** | Only analyzes one message at a time. | Sees the visual contrast between bubble sizes in history. |
-| **Layout Context** | Lost. | Understands "Seen" receipts and timestamps in context. |
+### Interpretation
 
----
+> You interpreted the short reply and period as anger or dismissal.
 
-## Logic Deconstruction: The "OK." Scenario
+### Unknowns
 
-When a user uploads a screenshot of a dry text, EmoPatch's **Cognitive Layer** (Gemini 3 Pro) performs the following split:
+- Whether the sender was busy, upset, tired, or simply brief.
+- Whether this style differs from their usual messages.
+- What happened outside the visible conversation.
 
-### 1. The Fact (The Camera's View)
->
-> "You received a message containing the word 'OK' followed by a period at 4:15 PM, following a 5-hour gap in the conversation history."
+### The Missing Piece
 
-### 2. The Interpretation (The User's Narrative)
->
-> "You feel they are being dismissive or angry because the message is shorter than usual and contains a period, which feels final and cold."
+The system asks one optional question only if it could change the analysis:
 
-### 3. The Reframes
+> “Is this reply noticeably different from how this person usually texts you?”
 
-* **📹 The Observer:** "Input: 'OK.' Time delta: 5h. Fact: A response was received. No verbal conflict occurred."
-* **🧬 The Sociologist:** "Individual B may be experiencing high cognitive load or physical fatigue. Statistically, short replies correlate with limited time, not necessarily interpersonal conflict."
-* **🛡️ The Shield:** "Your need for warm connection is valid. However, this person currently lacks the bandwidth to provide it. Their brevity is a reflection of their state, not your worth."
+## Three grounded perspectives
 
----
+1. **Observable Evidence:** The reply is short; the screenshot alone does not establish anger.
+2. **Other Possibilities:** Anger is possible, but so are limited time, a habitual brief style, distraction, or a conversation that felt complete to the sender.
+3. **Needs & Agency:** The user's need for clarity matters. A small next move could be to pause and later ask a neutral clarifying question.
 
-## Vibe Engineering: The Masked Latency
+The second perspective deliberately includes more than one hypothesis. EmoPatch does not replace “they are angry” with an equally unsupported claim such as “they are only tired.”
 
-Because Gemini 3 Pro reasoning takes time, we use the **Breathing Buffer**.
+## Context Patch
 
-* **AI Start:** Reasoning begins.
-* **UI Interaction:** User sees "Analysis in Progress" and is guided through a 10-20s breathing exercise.
-* **Result:** By the time the user is physiologically calmer, the "Shield" and "Sociologist" perspectives are ready to provide logic.
+The user later adds:
 
----
+> “Actually, they normally send long messages, and ten minutes later they told me they were frustrated about what I said.”
 
-*This case study highlights how EmoPatch uses Gemini 3 not just as a text generator, but as a sophisticated lens for social-emotional perception.*
+EmoPatch updates the state rather than defending its first output.
+
+### What changed
+
+- Anger or frustration now has direct supporting evidence.
+- The interpretation becomes more specific and less speculative.
+- The useful next step can move from information gathering to repair or boundary-setting.
+
+### What stayed
+
+- The short reply alone was not sufficient evidence.
+- The user's need for clarity and respectful communication remains relevant.
+- The other person's full motives and future behavior are still unknown.
+
+### Why this matters
+
+The core AI value is not detecting a hidden “tone” with certainty. It is maintaining a clear boundary between evidence and inference, identifying missing information, and visibly revising the analysis when new facts arrive.
+
+## Technical path
+
+```text
+Screenshot + user text
+  → server-side moderation
+  → multimodal fact / interpretation split
+  → strict structured output
+  → optional clarification
+  → three perspectives
+  → added context
+  → versioned re-analysis and visible diff
+```
+
+The screenshot is sent through the same-origin server gateway. The OpenAI API key never enters the browser bundle, and Responses requests use `store: false`.

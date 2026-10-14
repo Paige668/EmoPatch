@@ -105,54 +105,63 @@
         %% Styling Classes
         classDef input fill:#F3E8FF,stroke:#A855F7,stroke-width:2px,rx:10,ry:10;
         classDef react fill:#E0F2FE,stroke:#0284C7,stroke-width:3px,rx:10,ry:10,color:#0c4a6e;
-        classDef geminiFlash fill:#DCFCE7,stroke:#16A34A,stroke-width:3px,rx:10,ry:10;
-        classDef geminiPro fill:#CCFBF1,stroke:#0D9488,stroke-width:6px,rx:10,ry:10;
-        classDef geminiTTS fill:#F9FAFB,stroke:#D1D5DB,stroke-width:1px,rx:10,ry:10,color:#9CA3AF;
+        classDef fastModel fill:#DCFCE7,stroke:#16A34A,stroke-width:3px,rx:10,ry:10;
+        classDef reasoningModel fill:#CCFBF1,stroke:#0D9488,stroke-width:6px,rx:10,ry:10;
+        classDef mediaModel fill:#F9FAFB,stroke:#D1D5DB,stroke-width:2px,rx:10,ry:10,color:#4B5563;
+        classDef safety fill:#FFF0ED,stroke:#E08D79,stroke-width:3px,rx:10,ry:10;
+        classDef gateway fill:#FEF3C7,stroke:#D97706,stroke-width:3px,rx:10,ry:10;
         classDef storage fill:#F3F4F6,stroke:#4B5563,stroke-width:2px,stroke-dasharray: 2 2;
 
         %% Nodes
         User((User))
         React[<b>React App Client</b><br />State Management & UI]:::react
         History[(IndexedDB<br />Local History)]:::storage
+        Gateway[<b>Server AI Gateway</b><br />API key, validation & retries]:::gateway
 
         subgraph "Perception Layer (Fast)"
         AudioBlob[Audio Blob<br />Raw Data]:::input
-        G3Flash[<b>Gemini 3 Flash</b><br />STT & Emotion Detection]:::geminiFlash
+        Transcribe[<b>gpt-transcribe</b><br />Speech to Text]:::mediaModel
+        Luna[<b>GPT-6 Luna</b><br />Split, Vision & Missing Piece]:::fastModel
         end
 
-        subgraph "Cognitive Layer (Deep Logic)"
-        Prompt[Structured Prompt<br />CBT Context]:::input
-        G3Pro[<b>Gemini 3 Pro</b><br />Reasoning & Reframing]:::geminiPro
-        Distortion[Pattern Check<br />Safety Guardrails]:::geminiPro
+        subgraph "Reflection Layer (Deep Logic)"
+        Prompt[Structured Prompt<br />Evidence & Uncertainty Rules]:::input
+        Sol[<b>GPT-6 Luna</b><br />Perspectives & Context Patch]:::reasoningModel
+        Moderation[<b>omni-moderation-latest</b><br />Safety Signal]:::safety
         end
 
-        subgraph "Response Layer (Empathetic)"
-        Advice[Final Advice Text]:::input
-        G2TTS[<b>Gemini 2.5 Flash TTS</b><br />Voice Synthesis]:::geminiTTS
+        subgraph "Response Layer"
+        Advice[Reflection Text]:::input
+        TTS[<b>gpt-4o-mini-tts</b><br />Voice Synthesis]:::mediaModel
         end
 
         %% Flows
         User ==>|1. Voice / Image / Text| React
 
         %% Perception Flow
-        React -->|2. useAudioRecorder| AudioBlob
-        AudioBlob -->|3. Multimodal Input| G3Flash
-        G3Flash -->|4. Transcribed Text + Tone| React
+        React -->|2. Same-origin request| Gateway
+        React -->|3. useAudioRecorder| AudioBlob
+        AudioBlob --> Gateway
+        Gateway --> Transcribe
+        Gateway --> Luna
+        Gateway --> Moderation
+        Transcribe -->|4. Verbatim transcript| React
+        Luna -->|5. Fact / interpretation / unknowns| React
 
         %% Cognitive Flow
-        React -->|5. Send Context| Prompt
-        Prompt --> G3Pro
-        G3Pro --> Distortion
-        Distortion -->|6. Fact/Interpret Split + Reframes| React
+        Gateway -->|6. Validated context| Prompt
+        Prompt --> Sol
+        Sol -->|7. Perspectives + visible analysis diff| React
 
         %% Response Flow
-        React -->|7. Send Advice| Advice
-        Advice --> G2TTS
-        G2TTS -->|8. Audio Buffer| React
+        React -->|8. Request spoken result| Gateway
+        Gateway --> Advice
+        Advice --> TTS
+        TTS -->|9. Audio Buffer| React
 
         %% Storage & Feedback
-        React -.->|9. Auto-Save| History
-        React ==>|10. Play Audio & Visuals| User
+        React -.->|10. User-initiated save| History
+        React ==>|11. Play Audio & Visuals| User
 
         %% Links
         linkStyle default stroke:#9CA3AF,stroke-width:2px,fill:none;

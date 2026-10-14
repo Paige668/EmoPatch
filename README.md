@@ -1,207 +1,239 @@
-
 # EmoPatch
 
-> **"A Soft Patch for Hard Moments."**
-> [!IMPORTANT]
-> **Medical Disclaimer:**
-> **EmoPatch is a wellness tool designed for self-reflection and emotional clarity. It is NOT a medical device and does not provide medical diagnosis, treatment, or professional therapy. If you are in a crisis, please seek professional help immediately.**
+> **Separate what happened from the story your mind added, then explore three grounded perspectives—and watch the analysis update when new context arrives.**
 
-## Overview
+## Before you start: do you need an API key?
 
-EmoPatch is a bite-sized emotional clarity web application designed for high-sensitivity users. It utilizes **Google Gemini 3** to help users de-escalate immediate emotional triggers by applying Cognitive Reframing principles.
+| How you use EmoPatch | API key needed? |
+|---|---|
+| Click **“Try a sample”** on the home screen | **No.** The sample runs the full loop from cached outputs, without a key or network. |
+| Run it locally and reflect on your own moments | **Yes, your own OpenAI API key.** This repository does not include one. Put yours in `.env.local` (see [Local setup](#local-setup)). API usage is billed to your account, separately from any ChatGPT subscription. |
+| Open a deployed Live Demo | **No.** The demo uses the deployer's server-side key. |
 
-Unlike generic chatbots that offer vague comfort, EmoPatch acts as a structured "Thought Sorting" system. It helps users separate objective facts from subjective interpretations, identifies unhelpful thinking patterns, and offers fresh perspectives through distinct, non-judgmental personas.
+**Only OpenAI keys work.** The server gateway calls OpenAI-specific APIs (Responses API with Structured Outputs, `gpt-transcribe`, `gpt-4o-mini-tts`, `omni-moderation-latest`). Gemini or Anthropic (Claude) keys will not work without code changes.
 
-## Unique Core Logic & Philosophy
+The key stays on the server and is never entered in, or sent to, the browser.
 
-The application is built around **"Emotional Logic Analysis"** to interrupt the cycle of rumination:
+**Keep your key private.** `.env.local` is listed in `.gitignore`; never commit it, paste it into an issue, or put it in client code. If a key is ever exposed, revoke it in the OpenAI dashboard and create a new one.
 
-### 1. The Great Split (Fact vs. Interpretation)
+EmoPatch is a bilingual reflection and emotional-regulation web app. It helps someone pause after a difficult moment, separate observable evidence from the story around it, explore multiple explanations, and choose one small next step.
 
-Stress often stems from confusing *what happened* (Fact) with *what we assume it means* (Interpretation).
+EmoPatch is not a medical device, diagnostic system, therapist, or crisis service.
 
-* **Step:** The app asks the user to "dump" their raw thoughts via Voice, Text, or Image.
-* **AI Logic:** It extracts the "Camera Fact" (objective reality, e.g., "He looked at his phone") and separates it from the "Narrative" (e.g., "He is ignoring me").
+## Why this project exists
 
-### 2. Thinking Pattern Recognition
+When emotions spike, one ambiguous event can quickly become a certain story:
 
-Before offering perspective, the system acts as a gentle safety net. If the user's input contains potentially stressful patterns (e.g., Negative Self-Talk, Catastrophizing, Assumption Making), the flow interrupts with a gentle "Pause & Breathe" moment to stabilize the user before proceeding.
+> “They did not reply” → “They do not respect me” → “I always ruin relationships.”
 
-### 3. The Three Perspectives (Reframing)
+EmoPatch does not replace that story with forced positivity. It makes the uncertainty visible and lets the analysis change when the user supplies new facts.
 
-Instead of generic "positive vibes," EmoPatch offers three specific cognitive lenses to view the situation:
+## Core experience
 
-* **📹 The Observer (Objectivity):** A mechanical, dry view of the event. "Event A occurred, followed by Event B." (Reduces emotional intensity).
-* **🧬 The Sociologist (Systems):** Attributes events to external factors, probability, or human limitations. "This is a systemic phenomenon, not a personal target." (Reduces personalization).
-* **🛡️ The Shield (Boundaries):** A protective, agency-focused voice. "Regardless of the outcome, I prioritize my own well-being." (Restores sense of control).
+```text
+Text / voice / screenshot
+        ↓
+Observable facts vs. interpretation
+        ↓
+One optional high-value clarification question (+ why it matters)
+        ↓
+Three grounded perspectives
+        ↓
+Deeper explanation or one small next step
+        ↓
+“Actually, there’s more context…”
+        ↓
+Updated analysis + What changed / What stayed / Why
+```
 
-### 🔍 Case Study: The "Dry Text" Trigger (Native Multimodal)
+### The Missing Piece
 
-EmoPatch leverages Gemini 3's **native multimodal vision** to decode complex social signals that are often lost in pure text.
+After the initial split, the AI lists what is still unknown. It asks at most one optional question—and only when the answer could materially change the analysis—and says in one line why it is asking. The answer is carried into every later step. This prevents the product from behaving like an endless generic chatbot.
 
-> [!TIP]
-> **Why Vision?** A text-only model sees "OK. Cool." but Gemini 3 sees the **absence** of emojis, the **stark period** at the end of a short sentence, and the **visual contrast** in message length—all key indicators of "dry" communication that trigger user anxiety.
+### Three grounded perspectives
 
-#### The Scenario
+The perspectives are cognitive operations, not fictional experts:
 
-* **Input**: A user uploads a screenshot of a 3-word reply sent after a 5-hour delay.
-* **Gemini 3 Analysis**: Beyond OCR, the model recognizes visual patterns—the lack of trailing exclamation points and the period after "OK".
-* **Impact**: The "Observer" persona stops the narrative loop by isolating the **Camera Fact** from the **Anxious Interpretation**.
+1. **Observable Evidence** — What is directly supported by the available information?
+2. **Other Possibilities** — What alternative explanations are plausible, and what is still unknown?
+3. **Needs & Agency** — What need matters here, and what small action is within the user's control?
 
-👉 **[Read the Full Multimodal Technical Breakdown](file:///Users/mac/Desktop/emopatch/CASE_STUDY_MULTIMODAL.md)**
+This exact trio is a product synthesis, not a clinically validated three-part protocol. Its components are informed by research on cognitive restructuring, reappraisal, self-distancing, and self-compassion. See [Scientific positioning](#scientific-positioning).
 
----
+### Context Patch
 
-### Technical Edge: Why Gemini 3?
+The user can add new context after receiving an analysis. EmoPatch then:
 
-EmoPatch is not just "using an LLM." We utilize specific Gemini 3 features to solve psychological friction:
+- incorporates only facts the user actually supplied;
+- updates facts, interpretations, unknowns, and all three perspectives;
+- shows the story **before → now**, plus **what changed**, **what stayed**, and **why**;
+- keeps every revision as a version, so perspectives can be compared with the previous version;
+- allows another follow-up or another patch from the updated state.
 
-1. **Native Multimodal Vision:** No separate OCR layer. Gemini 3 "feels" the layout and tone of a screenshot directly.
-2. **High-Reasoning (Pro):** For complex cognitive reframing where nuance is everything.
-3. **Speed (Flash):** For instant perception and "first response" stabilization.
+Context Patch is available directly from the perspectives page, not only at the end of the flow.
 
-## Technical Architecture & AI Orchestration
+The sample moment is deliberately chosen so that the added context makes the original worry *more* supported. EmoPatch follows the evidence rather than defaulting to reassurance.
 
-EmoPatch does not rely on a single model. Instead, it acts as a **Multi-Model Orchestrator**, assigning specific cognitive tasks to the most suitable Gemini variant to balance latency, reasoning depth, and emotional resonance.
+This is the main agentic loop: the system identifies uncertainty, asks selectively, and revises rather than defending its first answer.
 
-### Architecture Diagram
+## Design: less to read, more to see
+
+People often open EmoPatch while already overwhelmed, so the interface tries to carry meaning visually instead of in paragraphs.
+
+- **Puzzle pieces.** The fact and the story are two interlocking clay pieces: the story is built on top of the fact. The three perspectives lock together as one column, three sides of the same situation. Unknowns appear as dashed, missing pieces.
+- **One sentence first.** Each perspective leads with a single self-contained sentence; the detail is one tap away. Prompts ask the model for short, non-repetitive fields.
+- **Patchy.** The purple fabric patch from the logo is a small mascot with one mood per moment: idle, thinking (while the AI works), found, comfort, cheer, hug, and breathe. It speaks the guidance that used to be small grey hint text.
+- **Patchy's pause.** A button is always available on in-flow screens. Patchy also peeks out on its own, at most once per session, after two minutes without activity on one screen or after going back twice in quick succession, and never while the person is typing. It offers a three-round breathing guide (4 s in, 2 s hold, 6 s out), a hug, or calming rain or wave sound synthesised in the browser (no audio files), or the option to stop for today.
+- **Motion with a purpose.** Pieces snap together when results arrive, buttons squish when pressed, and screens settle like a piece being set down. All motion respects the system's reduce-motion setting.
+- **Fonts ship with the app.** Fredoka, Nunito, and ZCOOL KuaiLe are bundled through Fontsource rather than loaded from Google Fonts, which is slow or unreachable in some regions. The Chinese face is split into small subsets, so the browser downloads only the characters it needs.
+
+## AI architecture
 
 ```mermaid
-graph TD
-    %% Styling
-    classDef input fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef react fill:#61dafb,stroke:#333,stroke-width:2px,color:black;
-    classDef geminiFlash fill:#e6f7ff,stroke:#007bff,stroke-width:2px;
-    classDef geminiPro fill:#e6fffa,stroke:#00cc88,stroke-width:4px;
-    classDef geminiTTS fill:#fff0f6,stroke:#ff85c0,stroke-width:2px;
-
-    User((User)) -->|Voice / Image / Text| React[React App\n(Client Side)]:::react
-
-    subgraph "Perception Layer (Fast)"
-        React -->|useAudioRecorder Hook| AudioBlob[Audio Blob]
-        AudioBlob -->|Multimodal Input| G3Flash[Gemini 3 Flash\n(STT & Emotional Tone)]:::geminiFlash
-        G3Flash -->|Transcribed Text + Tone| React
-    end
-
-    subgraph "Cognitive Layer (Deep)"
-        React -->|Structured Prompt + CBT Context| G3Pro[Gemini 3 Pro\n(Reasoning & Reframing)]:::geminiPro
-        G3Pro -->|Fact/Interpretation Split| React
-        G3Pro -->|3 Persona Perspectives| React
-    end
-
-    subgraph "Response Layer (Empathetic)"
-        React -->|Final Advice Text| G2TTS[Gemini 2.5 Flash TTS\n(Voice Synthesis)]:::geminiTTS
-        G2TTS -->|Audio Buffer| React
-    end
-
-    React -->|Play Audio & Visuals| User
+flowchart LR
+    U[User] --> C[React client]
+    C --> G[/api/ai server gateway]
+    G --> M[omni-moderation-latest]
+    G --> L[gpt-6-luna\nperception + reflection]
+    G --> STT[gpt-transcribe]
+    G --> TTS[gpt-4o-mini-tts]
+    C --> DB[(IndexedDB history)]
 ```
 
-### 1. The "Deep Brain" (Cognitive Reframing)
+The browser calls only the same-origin `/api/ai` endpoint. `OPENAI_API_KEY` remains server-side and is never injected into the Vite client bundle.
 
-* **Primary Model:** `gemini-3-pro-preview`
-* **Role:** Handles the core "Three Perspectives" generation and deep pattern analysis.
-* **Why:** Cognitive reframing requires high nuance and empathy. The Pro model excels at complex reasoning, ensuring the "Sociologist" and "Shield" personas sound profound and human-like.
+### Model routing
 
-### 2. The "Fast Ears" (Perception & Reframing)
+| Workload | Model | Reason |
+|---|---|---|
+| Fact/interpretation split, screenshot understanding, missing question | `gpt-6-luna` | Low latency and low cost |
+| Three perspectives, deeper follow-up, Context Patch | `gpt-6-luna` | Short schema-bound outputs; about 1/20 the cost of `gpt-6.1-sol`, which can be re-enabled in `REASONING_MODELS` |
+| Recorded voice transcription | `gpt-transcribe` | Dedicated speech-to-text |
+| Spoken result | `gpt-4o-mini-tts` | Dedicated text-to-speech |
+| Safety signal | `omni-moderation-latest` | Text and image moderation |
 
-* **Primary Model:** `gemini-3-flash-preview`
-* **Role:** Handles real-time voice transcription, multimodal input (images), and initial intent detection.
-* **Why:** For the initial interaction, low latency is critical. Flash provides native multimodal understanding at high speed, making the user feel heard instantly.
+Structured tasks use the OpenAI Responses API with strict JSON schemas and `store: false`.
 
-### 3. The "Voice" (Connection)
+## Safety and privacy
 
-* **Model:** `gemini-2.5-flash-preview-tts`
-* **Role:** Specialized Text-to-Speech generation.
-* **Why:** While Gemini 3 is multimodal, we utilize the specialized 2.5 TTS model to access advanced speech controls (e.g., 'Kore' persona) to ensure the output voice is soothing and therapeutically appropriate.
+- Product copy consistently describes EmoPatch as reflection, perspective-taking, and emotional regulation—not treatment.
+- The model must preserve uncertainty and may not infer another person's motives as fact.
+- Ordinary thinking-pattern prompts are separate from self-harm safety handling.
+- Two independent safety signals: `omni-moderation-latest` (self-harm categories) and a model-side `safetyConcern` field in the split schema (self-harm or harm to others). Either one redirects to real-world support instead of a normal analysis. If the moderation call itself is unavailable, analysis continues and the model-side signal still applies.
+- Rules and user data are sent in separate messages; user data is passed as JSON and treated as untrusted.
+- Saved history stays in the user's browser through IndexedDB.
+- AI inputs are still sent to the OpenAI API for processing. `store: false` disables Responses application-state storage; applicable OpenAI API data controls and abuse-monitoring retention still apply.
 
-## AI Safety & Ethical Guardrails
+The safety classifier is a product guardrail, not a clinical risk assessment and should not be presented as one.
 
-To ensure strict compliance with international safety standards, EmoPatch is engineered with multi-layered safety moats. The system is explicitly designed as a **Cognitive Coaching Tool**, strictly isolated from clinical intervention.
+## Scientific positioning
 
-### 1. Multi-Stage Protocol Enforcement
+EmoPatch uses evidence-informed mechanisms but does not claim clinical efficacy:
 
-We have implemented a Mandatory Safety Interruption Protocol across ALL internal logic steps. This ensures that the AI cannot generate medical advice, regardless of the generation stage (Initial Split, Reframing, or Deep Analysis):
-*`getSplitSystemInstruction`: Hard-coded boundaries during initial thought deconstruction.
-*`getReframePrompt`: Strict persona constraints during perspective generation.
-*`getFollowUpPrompt`: Enforcement during deep insight and action-step synthesis.
+- Cognitive restructuring commonly treats thoughts as testable hypotheses and examines evidence, alternatives, and implications: [Cognitive Restructuring and Psychotherapy Outcome](https://pmc.ncbi.nlm.nih.gov/articles/PMC10440210/).
+- Deliberate psychological distancing is a studied emotion-regulation strategy, with generally moderate effects and important context limitations: [Powers & LaBar, 2019](https://pubmed.ncbi.nlm.nih.gov/30502352/) and [Guo, 2022](https://pubmed.ncbi.nlm.nih.gov/36256910/).
+- Self-compassion interventions show small-to-medium benefits in meta-analysis, while study quality and online generalization remain limitations: [Han & Kim, 2023](https://pubmed.ncbi.nlm.nih.gov/37362192/).
 
-> **[SAFETY PROTOCOL - ENFORCED AT EVERY STEP]**
-> *YOU ARE A COGNITIVE PROCESSING TOOL, NOT A MENTAL HEALTH PROFESSIONAL.
->*NO DIAGNOSIS: Never use DSM-5 terminology (e.g., "Depression", "Bipolar") to label users.
->*NO PRESCRIPTION: Never tell users what they "should" do medically.
->*CRISIS REDIRECTION: If self-harm is detected, STOP analysis and output suicide prevention resources ONLY.
+The previous “Sociologist” and “Shield” personas were removed because they could encourage unsupported external attribution or mind-reading. The new perspectives require multiple hypotheses, explicit unknowns, and actions within the user's control.
 
-### 2. Scope of Analysis: Patterns vs. Pathology
+## Local setup
 
-* **The Logic:** The AI identifies Cognitive Distortions (educational concepts like Catastrophizing or Mind Reading), which are universal thinking habits, not clinical symptoms.
-* **The Restriction:** The system is technically prohibited from mapping these patterns to medical diagnostic codes. It treats input as "thought-loop bugs," not "biological disorders."
+Requirements: Node.js 20 or newer and an OpenAI API account with API billing enabled.
 
-### 3. Crisis De-escalation & Redirection
-
-* **Mechanism:** If high-risk sentiment (e.g., `SELF_ATTACK`) is detected, the `StepExtremeAlert` protocol overrides the standard logic.
-* **Action:** The system immediately shifts from "Analysis Mode" to "Stabilization Mode," guiding the user through grounding exercises (e.g., 4-6 breathing), acting as a First-Aid De-escalator rather than a medical provider.
-
-## UX Engineering Highlights
-
-### Latency as a Feature (The Breathing Buffer)
-
-We turned a technical constraint into a psychological feature.
-
-* **The Problem:** Deep reasoning with `gemini-3-pro` takes time (approx. 5-10 seconds).
-* **The Solution:** Instead of a generic loading spinner, we trigger a UI-guided breathing exercise (10 seconds for standard analysis, or 20 seconds for intense de-escalation).
-* **The Impact:** This creates a natural "Buffer Zone." By the time the user completes their mindful breathing cycle to lower physiological tension, the high-latency AI analysis is ready. We effectively masked the latency while providing direct grounding value.
-
-### Vibe Engineering (Claymorphism)
-
-* **Visual Strategy:** We strictly avoided clinical or "tech-heavy" aesthetics.
-* **Implementation:** Used **Claymorphism (Soft 3D)** with "Sage Green" and "Warm Cream" palettes. The UI elements look soft, squeezable, and non-threatening, physically reducing the user's cognitive load and defensive state.
-
-## Key Functionalities
-
-* **Multimodal Input (Gemini 3):** Text, Voice (Tone Analysis via native audio tokens), and Image Context.
-* **Bilingual Support:** Seamlessly toggle between English and Chinese (Mandarin) with culturally adapted nuances.
-* **Audio Guidance (TTS):** Soothing speech synthesis using `gemini-2.5-flash-preview-tts`.
-* **Offline "Coping" Mode:** Robust error handling. If the API is unreachable, the app falls back to local "Grounding Templates" so the user is never left without support.
-* **Local History:** All sessions are saved locally in the browser (IndexedDB) for privacy and personal reflection.
-
-## Technical Architecture Stack
-
-* **Frontend:** React 18, TypeScript, Tailwind CSS.
-* **Animation:** Framer Motion (for smooth, calming transitions).
-* **AI Engine:** Google Gemini API via `@google/genai`.
-* **Orchestration Logic:** Custom `executeWithFallback` wrapper implementing the Pro → 3 Flash priority queue.
-* **State Management:** React `useReducer` (State Machine pattern).
-* **Storage:** `idb-keyval` (IndexedDB wrapper).
-
-### Data Flow
-
-1. **Capture:** `useAudioRecorder` → State.
-2. **Fast Analysis (3 Flash):** Rapidly extracts facts and emotional tone.
-3. **Buffer:** User performs a 20s breathing exercise while Pro model reasons in background (with auto-fallback).
-4. **Deep Reframing:** Generates 3 specific personas with safety checks.
-5. **Synthesis:** Output rendered to UI + Audio Buffer (TTS).
-
-## Project Structure
+ChatGPT subscriptions and OpenAI API billing are separate. You do not buy a special “GPT token” for this repository: add a payment method or prepaid API credits in the API Platform, create an API key, and pay for actual model usage. See OpenAI's [billing guide](https://help.openai.com/en/articles/9039756-billing-settings-in-chatgpt-vs-platform) and [current API pricing](https://developers.openai.com/api/docs/pricing).
 
 ```bash
-/src
-  ├── components/       # Claymorphism UI & Flow Steps
-  │   ├── steps/        # Dump, PatternAlert, Perspectives, Final
-  │   └── ui/           # ClayCard, ClayButton, BreathingCircle
-  ├── services/          
-  │   ├── aiService.ts  # Implements Cascading Fallback Logic
-  │   ├── prompts.ts    # System instructions & Guardrails
-  │   └── storage.ts    # IndexedDB operations
-  ...
+npm install
+cp .env.example .env.local
 ```
 
-## Privacy
+Set the server-only environment variable in `.env.local`:
 
-* **No Backend Database:** EmoPatch does not store user data on a server.
-* **Local Storage:** History is stored strictly in the user's browser via IndexedDB.
-* **AI Privacy:** Data is sent to the Google Gemini API solely for processing the immediate session and is not retained by this application.
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-## Credits
+Then run:
 
-Developed as a prototype for emotional wellness using the latest capabilities of the **Google Gemini 3** model family.
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+Do not rename the variable to `VITE_OPENAI_API_KEY`. Variables prefixed with `VITE_` are exposed to browser code.
+
+## Deployment
+
+The repository includes:
+
+- a Vite development middleware for `/api/ai`;
+- a Vercel-compatible function at `api/ai.ts`;
+- shared server logic at `server/openaiGateway.ts`.
+
+For Vercel, add `OPENAI_API_KEY` as a project environment variable. Static-only hosts such as GitHub Pages cannot safely run the AI endpoint without a separate backend or serverless function.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `OPENAI_API_KEY` | Yes | Server-side OpenAI key |
+| `RATE_LIMIT_MAX_REQUESTS` | No | Requests per IP per 10 minutes (default 80; one full reflection uses 4–6) |
+| `ALLOWED_ORIGINS` | No | Extra comma-separated origins allowed to call `/api/ai` (same-origin is always allowed) |
+
+`vercel.json` sets the function `maxDuration` to 60 seconds; the gateway keeps each request within a 50-second budget with per-attempt timeouts. Request bodies are capped at about 4.4 MB to stay under Vercel's limit; the client downsizes screenshots and caps recordings at two minutes to fit.
+
+The rate limiter is best-effort and in-memory (per function instance). For a public production release, replace it with a durable limiter and always configure an OpenAI project hard spend limit.
+
+## Project structure
+
+```text
+api/                         Vercel serverless entry point (rate limit, origin check)
+server/openaiGateway.ts      OpenAI routing, schemas, moderation, timeouts, fallbacks
+services/aiService.ts        Browser client for the same-origin gateway
+services/prompts.ts          Reflection rules and structured task instructions
+services/demoCase.ts         Cached bilingual sample moment
+services/imageUtils.ts       Client-side screenshot downscaling
+hooks/useTriageFlow.ts       Product state machine, retries, versioned Context Patch
+components/steps/            Individual experience steps
+components/Patchy.tsx        The Patchy mascot and its moods
+components/PatchyPause.tsx   Patchy's pause: breathing, hug, ambient sound
+components/LensPieces.tsx    Interlocking perspective pieces
+components/ui/Icon.tsx       Shared line-icon set
+services/ambientSound.ts     Rain and wave sound synthesised with Web Audio
+services/storageService.ts   Local IndexedDB history
+scripts/                     Gateway tests, flow tests, real-API evaluation
+docs/evaluation/             Sample cases and evaluation results
+```
+
+## Verification
+
+```bash
+npm run check   # typecheck + gateway tests + flow tests + production build
+```
+
+- `npm run test:gateway` covers schemas, prompt/data separation, incomplete-output errors, billing short-circuit, input limits, and both safety signals (with a mocked OpenAI API).
+- `npm run test:flow` covers the state machine: back navigation, retry after a failed step, one-step skip, versioning, the demo path, and zh/en copy parity.
+
+## Evaluation
+
+`docs/evaluation/sample-cases.json` contains 10 synthetic cases (no real personal data), including cases where new context should strengthen, weaken, or not change the analysis, a case where no question is needed, a Chinese case, and a safety-route case.
+
+```bash
+npm run eval   # requires OPENAI_API_KEY; writes docs/evaluation/results.md
+```
+
+The script runs each case through the real gateway and checks fact purity (keyword heuristic), unknowns, question rationale, perspective distinctness, patch summaries, safety routing, structured-output success rate, and latency. Revision sensitivity and question value are left for human review in the generated report. No claim about improved user wellbeing is made.
+
+## Limitations
+
+- Not a clinical tool; safety signals are guardrails, not risk assessments.
+- The evaluation set is small and synthetic, and the automatic checks are heuristics.
+- The rate limiter is per-instance and in-memory.
+- Model availability depends on the OpenAI project; all text tasks currently use `gpt-6-luna`.
+
+## Official OpenAI references
+
+- [Responses API migration](https://developers.openai.com/api/docs/guides/migrate-to-responses)
+- [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- [Moderation](https://developers.openai.com/api/docs/guides/moderation)
+- [API pricing](https://developers.openai.com/api/docs/pricing)
+- [API data controls](https://developers.openai.com/api/docs/guides/your-data)
